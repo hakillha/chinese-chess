@@ -71,8 +71,8 @@ function BoardPosition(props) {
   return (
     // Use the empty div to draw diagonal line
     <div className="square">
-      {button}
       <div></div>
+      {button}
     </div>
   );
 }
@@ -96,14 +96,12 @@ class Game extends React.Component{
     super(props);
     this.state = {
       pieces: iniPieces,
-      // gameState: "thinking", // ["thinking", "moving"]
       movingPiecePos: null,
       redIsNext: true,
     }
   }
 
   setMovingPiece(position) {
-    // console.log(position);
     this.setState({
       movingPiecePos: position,
     });
@@ -148,10 +146,14 @@ class Game extends React.Component{
     this.state.pieces.forEach((p) => {
       const p_ = {...p}; // Supposedly positions wouldn't be mutated so shallow copy should work
       let setMovingHandler;
+      const sMPhandler = (e) => {
+        e.stopPropagation();
+        this.setMovingPiece(p.position);
+      }; 
       if (this.state.redIsNext) {
-        setMovingHandler = p_.side === "red"? () => this.setMovingPiece(p.position) : null;
+        setMovingHandler = p_.side === "red"? sMPhandler : null;
       } else {
-        setMovingHandler = p_.side === "black"? () => this.setMovingPiece(p.position) : null;
+        setMovingHandler = p_.side === "black"? sMPhandler : null;
       }
       p_.setMovingPiece = winner? null : setMovingHandler; // When game is over pass null handler to freeze the game
       boardState[p.position[1]][p.position[0]] = p_;
@@ -174,7 +176,7 @@ class Game extends React.Component{
 
     return (
       <div className="game">
-        <div className="game-board">
+        <div className="game-board" onClick={() => this.setState({ movingPiecePos: null, })}>
           {[...Array(boardHeight).keys()].map((y) => 
             <BoardRow 
               key={y} 
@@ -199,6 +201,10 @@ class Game extends React.Component{
             >
               Reset Game
             </button>
+          </div>
+          <div>
+            Game Manuals: <br />
+            Click on the board to cancel movement if you've selected a piece to move.
           </div>
         </div>
       </div>
