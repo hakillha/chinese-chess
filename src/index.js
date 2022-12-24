@@ -58,7 +58,7 @@ function BoardPosition(props) {
     } else {
       button = (
         <button 
-          className={"square-button " + props.piece.side}  
+          className={`square-button ${props.piece.side}` + (props.piece.side === props.curSide? " current-side" : "")}  
           onClick={props.piece.setMovingPiece}
         >
           {props.piece.name}
@@ -85,6 +85,7 @@ function BoardRow(props) {
           key={`${x}-${props.y}`} 
           position={[x, props.y]}
           piece={props.boardState[props.y][x]}
+          curSide={props.curSide}
         />
       )}
     </div>
@@ -138,9 +139,10 @@ class Game extends React.Component{
     const winner = this.calWinner();
     let status;
     if (winner) {
-      status = `Game over! The winner is ${winner} player!`;
+      status = <div className="game-info">Game over! The winner is {winner} player!</div>;
     } else {
-      status = `${this.state.redIsNext? "Red" : "Black"} player is taking the turn.`;
+      const playerText = this.state.redIsNext? <span className="red-player">Red</span> : "Black";
+      status = <div className="game-info"><b>{playerText}</b> player is taking the turn.</div>;
     }
 
     this.state.pieces.forEach((p) => {
@@ -182,11 +184,13 @@ class Game extends React.Component{
               key={y} 
               y={y} 
               boardState={boardState}
+              curSide={this.state.redIsNext? "red" : "black"}
             />
           )}
         </div>
         <div className="game-menu">
-          <div>{status}</div>
+          {status}
+          <br />
           <div>
             <button
               onClick={() => {
@@ -202,6 +206,7 @@ class Game extends React.Component{
               Reset Game
             </button>
           </div>
+          <br />
           <div>
             Game Manuals: <br />
             Click on the board to cancel movement if you've selected a piece to move.
